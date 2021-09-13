@@ -26,8 +26,7 @@ router.get('/protected', passport.authenticate('jwt', { session: false }), (req,
     res.json(200).json({success: true, msg: 'You are authorized to visit this page.'})
 })
 
-// Post requests:
-
+// Login and register
 router.post('/register', (req, res) => {
     const {username, email, password} = req.body
 

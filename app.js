@@ -10,8 +10,6 @@ const db = mongoose.connection
 db.on('error', (err) => console.log(err))
 db.once('open', () => console.log('Database connected'))
 
-const User = require('./models/user')
-
 // Passport library is passed into this module:
 require('./config/passport')(passport)
 
@@ -23,10 +21,6 @@ app.use(passport.initialize())
 
 // Routes
 app.use('/users', require('./routes/users'))
-
-app.get('/', (req, res) => {
-    res.sendStatus(404)
-})
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => console.log('Server started'))
