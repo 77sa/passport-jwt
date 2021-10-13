@@ -34,62 +34,25 @@ router.post('/register', async (req, res) => {
     } catch (error) {
         res.status(500).send({message: "Server error"})
     }
-
-    //     User.findOne({email:email})
-    //         .then(async user => {
-    //             if(user){
-    //                 // Account already exists
-    //                 errors.push({message: 'Email already in use'})
-    //                 res.send([...errors])
-    //             } else {
-    //                 // Saving new user
-    //                 const hashedPassword = await bcrypt.hash(password, 10)
-
-    //                 const newUser = new User({
-    //                     username,
-    //                     email,
-    //                     password: hashedPassword
-    //                 })
-    //                 newUser.save()
-    //                     .then(user => {
-    //                         const jwt = issueJWT(user)
-
-    //                         res.json({ success: true, user, token: jwt.token, expiresIn: jwt.expires})
-    //                     })
-    //                     .catch(err => console.log(err))
-    //             }
-    //         })
-    // }
 })
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
     const {username, password} = req.body
 
-    let errors = []
+    try {
+        const user = User.findOne({username})
 
-    User.findOne({username:username})
-        .then(async user => {
-            if(!user){
-                // No account
-                errors.push({message: 'Account does not exist'})
-                res.json([...errors])
-            } else {
-                try {
-                    if(await bcrypt.compare(password, user.password)){
-                        // Password match
-                        const jwt = issueJWT(user)
+        if(!user) return res.status(400).send({message: "Invalid credentials"})
 
-                        res.json({ success: true, user, token: jwt.token, expiresIn: jwt.expires})
-                    } else {
-                        // Wrong password
-                        errors.push({message: 'Wrong password'})
-                        res.json([...errors])
-                    }
-                } catch (err){
-                    console.log(err)
-                }
-            }
-        })
+        if(await bcrypt.compare(password, user.password)){
+            const jwt = issueJWT(user)
+            return res.json({ success: true, user, token: jwt.token, expiresIn: jwt.expires})
+        } else {
+            res.status(401).send({message: "Invalid credentials"})
+        }
+    } catch (error) {
+        res.status(500).send({message: "Server error"})
+    }
 })
 
 function issueJWT(user){
